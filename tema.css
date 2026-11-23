@@ -1,0 +1,108 @@
+/* =====================================================================
+   Agua Las Perlitas: identidad tomada de sus piezas.
+   Cielo azul vivo en degradado, botella con tapa azul, formas planas (círculo amarillo, gota naranja,
+   globo azul profundo), tipografía geométrica con mayúscula inicial, frases cortas con pausa
+   («Sabe bien, elegir bien.» · «Calidad que se nota en cada gota»).
+   Dos fondos: .azur (degradado vivo, texto blanco) y .cielo (celeste claro, texto azul profundo).
+   ===================================================================== */
+:root {
+  --azul-marca: #1b2a9b;   /* globo de texto, titulares, tapa */
+  --azul-vivo: #1c6ee8;    /* etiqueta de la botella */
+  --cielo-alto: #38b6f5;
+  --cielo-bajo: #1c6ee8;
+  --celeste: #bfe8fb;
+  --celeste-claro: #eaf8ff;
+  --amarillo: #ffd23f;     /* círculo de las piezas */
+  --naranja: #f58a4f;      /* gota naranja: aquí también el lodo */
+  --fondo: var(--cielo-bajo);
+  --tinta: #ffffff;
+  --suave: rgba(255, 255, 255, 0.82);
+  --linea: rgba(255, 255, 255, 0.35);
+  --acento: var(--amarillo);
+  --azul: var(--amarillo);
+  --declaracion: var(--azul-marca);
+  --pulso: 255, 255, 255;
+  --letra-titulo: 'Montserrat', Arial, sans-serif;
+  --letra-texto: 'Montserrat', Arial, sans-serif;
+  --letra-cifra: 'Montserrat', Arial, sans-serif;
+  --ola-1: rgba(255, 255, 255, 0.55); --ola-2: rgba(255, 255, 255, 0.28); --ola-3: rgba(255, 255, 255, 0.14);
+}
+body, html { background: #0e3f9c; }
+section { background: linear-gradient(180deg, var(--cielo-alto) 0%, var(--cielo-bajo) 100%); -webkit-font-smoothing: antialiased; }
+section.cielo { background: linear-gradient(180deg, var(--celeste) 0%, var(--celeste-claro) 100%); --tinta: var(--azul-marca); --suave: #3f56c4; --linea: rgba(27, 42, 155, 0.25); --acento: var(--azul-vivo); --azul: var(--azul-vivo);
+  --ola-1: rgba(56, 182, 245, 0.45); --ola-2: rgba(56, 182, 245, 0.28); --ola-3: rgba(28, 110, 232, 0.16); color: var(--tinta); }
+.titulo { font-weight: 700; letter-spacing: -2px; text-wrap: balance; max-width: 1500px; }
+.num { letter-spacing: -2px; font-variant-numeric: tabular-nums; }
+
+/* ===== Fondo de agua ===== */
+.mar { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.mar .ola { position: absolute; left: 0; bottom: -30px; width: 3840px; height: 220px; will-change: transform; animation: deriva 24s linear infinite; }
+.mar .ola path { fill: var(--ola-1); }
+.mar .ola.o2 { bottom: -58px; animation-duration: 33s; animation-direction: reverse; } .mar .ola.o2 path { fill: var(--ola-2); }
+.mar .ola.o3 { bottom: -88px; animation-duration: 45s; } .mar .ola.o3 path { fill: var(--ola-3); }
+@keyframes deriva { from { transform: translateX(0); } to { transform: translateX(-1920px); } }
+.mar .burbuja { position: absolute; left: var(--x); bottom: -60px; width: var(--s); height: var(--s); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.7); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.05) 60%); animation: subir var(--t) linear infinite; animation-delay: var(--d); will-change: transform; }
+section.cielo .mar .burbuja { border-color: rgba(28, 110, 232, 0.35); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(98, 200, 242, 0.12) 60%); }
+@keyframes subir { 0% { transform: translate(0, 0); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(18px, -560px); } 100% { transform: translate(-14px, -1180px); opacity: 0; } }
+
+/* ===== Entradas: emergen del agua (suben y se aclaran) ===== */
+.entra { animation: emerger 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 120ms + 650ms); }
+.titulo { animation: emerger 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both 600ms; }
+@keyframes emerger { from { opacity: 0; transform: translateY(40px) scale(0.985); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+section.activa.mismo-grupo .entra { animation-delay: calc(var(--i, 0) * 120ms + 100ms); }
+.pie p { color: var(--suave); font-weight: 500; }
+
+/* ===== Formas de marca ===== */
+/* Globitos de mensaje: formas planas con una esquina en punta que la marca coloca detrás o al lado de la botella para dar contraste */
+.globito { position: absolute; background: var(--amarillo); border-radius: 50% 50% 50% 10%; }
+.globito.naranja { background: var(--naranja); border-radius: 50% 10% 50% 50%; }
+.globito.azul { background: var(--azul-marca); border-radius: 50% 50% 10% 50%; }
+
+/* ===== Portada ===== */
+#portada { padding: 0; }
+#portada .contenido { position: absolute; left: 128px; top: 0; width: 1000px; height: 1080px; display: flex; flex-direction: column; justify-content: center; gap: 40px; z-index: 3; }
+#portada .logo { width: 360px; display: block; }
+#portada h1 { font-size: 156px; line-height: 0.98; letter-spacing: -6px; font-weight: 800; color: #fff; text-wrap: balance; }
+#portada .sub { font-size: 46px; line-height: 1.25; font-weight: 500; color: #fff; max-width: 860px; }
+#portada .escena { position: absolute; right: 0; top: 0; width: 760px; height: 1080px; z-index: 2; }
+#portada .escena .globito.amarillo { width: 560px; height: 560px; right: 150px; top: 150px; transform-origin: 0 100%; animation: crecer-c 1s cubic-bezier(0.2, 0.9, 0.2, 1.1) both 0.5s; }
+@keyframes crecer-c { from { transform: scale(0); } to { transform: scale(1); } }
+#portada .escena .globito.naranja { width: 150px; height: 150px; right: 70px; top: 90px; animation: flotar 6s ease-in-out infinite alternate, aparecer 0.6s ease both 1s; }
+#portada .frase-globo { position: absolute; right: 40px; top: 575px; width: 460px; padding: 40px 48px; background: var(--azul-marca); color: #fff; font-size: 46px; font-weight: 700; line-height: 1.14; letter-spacing: -1px; border-radius: 64px 64px 14px 64px; box-shadow: 0 24px 50px rgba(10, 40, 150, 0.3); animation: emerger 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both 1.4s; }
+#portada .gran-gota { position: absolute; left: 30px; top: -420px; width: 330px; height: 440px; animation: caer 4.4s cubic-bezier(0.55, 0, 0.9, 0.6) infinite 1.1s; filter: drop-shadow(0 20px 30px rgba(10, 40, 150, 0.35)); }
+@keyframes caer { 0% { transform: translateY(0) scaleY(1); opacity: 1; } 32% { transform: translateY(880px) scaleY(1.08); opacity: 1; } 34% { transform: translateY(915px) scaleY(0.5); opacity: 0; } 100% { transform: translateY(915px); opacity: 0; } }
+#portada .superficie { position: absolute; left: 0; right: 0; top: 905px; height: 0; }
+#portada .superficie i { position: absolute; left: 195px; top: -34px; width: 420px; height: 90px; margin-left: -210px; border: 5px solid rgba(255, 255, 255, 0.95); border-radius: 50%; opacity: 0; animation: onda 4.4s ease-out infinite; }
+#portada .superficie i:nth-child(1) { animation-delay: 2.5s; } #portada .superficie i:nth-child(2) { animation-delay: 2.9s; } #portada .superficie i:nth-child(3) { animation-delay: 3.3s; }
+@keyframes onda { 0% { transform: scale(0.12); opacity: 0; } 4% { opacity: 1; } 55% { transform: scale(1.5); opacity: 0; } 100% { transform: scale(1.5); opacity: 0; } }
+#portada .chispa { position: absolute; left: 195px; top: 880px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #fff; opacity: 0; animation: chispa 4.4s ease-out infinite; animation-delay: 2.5s; }
+#portada .c1 { --dx: -150px; --dy: -120px; } #portada .c2 { --dx: 130px; --dy: -150px; } #portada .c3 { --dx: -60px; --dy: -200px; } #portada .c4 { --dx: 70px; --dy: -190px; }
+@keyframes chispa { 0% { transform: translate(0, 0) scale(1); opacity: 0; } 2% { opacity: 1; } 24% { transform: translate(var(--dx), var(--dy)) scale(0.6); opacity: 0.9; } 40% { transform: translate(calc(var(--dx) * 1.3), calc(var(--dy) + 150px)) scale(0.2); opacity: 0; } 100% { opacity: 0; } }
+
+/* ===== Planta en 3D ===== */
+#planta { padding: 0; }
+#planta canvas.c3d { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 0; }
+#planta .titulo { position: absolute; left: 128px; top: 100px; margin: 0; z-index: 2; font-size: 76px; }
+#planta .rotulos { position: absolute; left: 128px; bottom: 120px; z-index: 2; width: 1300px; height: 230px; }
+#planta .rotulo { position: absolute; left: 0; bottom: 0; display: flex; align-items: center; gap: 36px; opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+#planta .rotulo b { flex: none; width: 112px; height: 112px; border-radius: 50% 50% 50% 14%; background: var(--amarillo); color: var(--azul-marca); display: grid; place-items: center; font-size: 60px; font-weight: 800; box-shadow: 0 10px 30px rgba(27, 42, 155, 0.28); }
+#planta .rotulo h3 { font-size: 60px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.05; }
+#planta .rotulo p { font-size: 34px; font-weight: 500; color: var(--suave); margin-top: 10px; }
+#planta[data-paso="0"] .r0, #planta[data-paso="1"] .r1, #planta[data-paso="2"] .r2, #planta[data-paso="3"] .r3,
+#planta[data-paso="4"] .r4, #planta[data-paso="5"] .r5, #planta[data-paso="6"] .r6 { opacity: 1; transform: none; }
+#planta .pie { z-index: 2; }
+
+/* ===== Química: los iones se encuentran y caen como sólido ===== */
+#quimica .titulo { margin-bottom: 40px; }
+#quimica .vaso { position: absolute; left: 128px; top: 268px; width: 1040px; height: 700px; border-radius: 36px 36px 64px 64px; overflow: hidden; background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.1)); border: 3px solid rgba(255, 255, 255, 0.75); box-shadow: 0 30px 60px rgba(8, 40, 140, 0.3), inset 0 0 0 10px rgba(255,255,255,0.06); }
+#quimica .vaso canvas { width: 1040px; height: 700px; display: block; }
+#quimica .reacciones { position: absolute; left: 1250px; top: 330px; width: 540px; display: flex; flex-direction: column; gap: 36px; }
+#quimica .globo-q { background: var(--azul-marca); border-radius: 56px 56px 56px 12px; padding: 40px 44px; color: #fff; opacity: 0; transform: translateY(30px) scale(0.96); transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.2, 1.1); }
+#quimica .globo-q p { font-size: 50px; font-weight: 800; line-height: 1.15; letter-spacing: -1px; }
+#quimica .globo-q small { display: block; margin-top: 12px; font-size: 26px; font-weight: 500; color: rgba(255,255,255,0.8); }
+#quimica .globo-q .s { color: var(--amarillo); }
+#quimica .globo-q.mg { background: #fff; color: var(--azul-marca); border-radius: 56px 56px 12px 56px; } #quimica .globo-q.mg small { color: #3f56c4; } #quimica .globo-q.mg .s { color: var(--naranja); }
+#quimica.p1 .g1, #quimica.p2 .g2 { opacity: 1; transform: none; }
+#quimica .globito.amarillo { right: 128px; top: 60px; width: 200px; height: 200px; z-index: -1; }
+#quimica .globo-q .s { margin-top: 4px; }
+sub, sup { font-size: 0.6em; line-height: 0; }

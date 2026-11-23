@@ -1,0 +1,17 @@
+<section id="planta" class="cielo" data-pasos="6" data-trans="cascada">
+<canvas class="c3d" id="c3d" width="1920" height="1080" aria-label="Modelo 3D de la planta de tratamiento"></canvas>
+<h2 class="titulo">Seis etapas. Una gota que vuelve.</h2>
+<div class="rotulos">
+<div class="rotulo r0"><b>0</b><div><h3>Rechazo de ósmosis</h3><p>Hoy se va por el desagüe</p></div></div>
+<div class="rotulo r1"><b>1</b><div><h3>Recolección</h3><p>Se junta y se mezcla</p></div></div>
+<div class="rotulo r2"><b>2</b><div><h3>Dosificación y precipitación</h3><p>La dureza se vuelve sólida</p></div></div>
+<div class="rotulo r3"><b>3</b><div><h3>Sedimentación</h3><p>Los sólidos caen; el lodo sigue su propia ruta</p></div></div>
+<div class="rotulo r4"><b>4</b><div><h3>Filtración</h3><p>Grava y arena atrapan lo fino</p></div></div>
+<div class="rotulo r5"><b>5</b><div><h3>Acondicionamiento y verificación</h3><p>Si el pH cumple, sale</p></div></div>
+<div class="rotulo r6"><b>6</b><div><h3>Suministro a refrigeración</h3><p>Agua de servicio para la torre</p></div></div>
+</div>
+<div class="pie"><p>Modelo ilustrativo · fuente: guía técnica del proyecto [1] [2] [3]</p><p class="pag"></p></div>
+<aside>Un clic por etapa. Cero: el rechazo sale del equipo de ósmosis. Uno: se recolecta y se mezcla. Dos: se dosifican reactivos y la dureza pasa a sólido. Tres: en el sedimentador los sólidos caen y el lodo sale por su propia línea. Cuatro: la filtración retiene lo fino. Cinco: se ajusta y verifica el pH; si no cumple, no sale. Seis: llega a refrigeración. En una torre el diseño debe contemplar recirculación, evaporación y purga [3].</aside>
+<script>{{incluir:recursos/planta.js}}</script>
+<script>PlantaPerlitas.iniciar(document.getElementById('c3d'), document.getElementById('planta'));</script>
+</section>

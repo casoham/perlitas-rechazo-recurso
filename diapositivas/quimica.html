@@ -1,0 +1,52 @@
+<section id="quimica" class="azur" data-pasos="2" data-trans="ondas">
+<div class="globito amarillo"></div>
+<h2 class="titulo">La dureza se queda en el fondo</h2>
+<div class="vaso"><canvas id="iones" width="1040" height="700" aria-label="Iones de calcio y magnesio que se unen y caen como sólido"></canvas></div>
+<div class="reacciones">
+<div class="globo-q g1"><p>Ca<sup>2+</sup> + CO<sub>3</sub><sup>2−</sup></p><p class="s">→ CaCO<sub>3</sub> ↓</p><small>carbonato de calcio</small></div>
+<div class="globo-q mg g2"><p>Mg<sup>2+</sup> + 2 OH<sup>−</sup></p><p class="s">→ Mg(OH)<sub>2</sub> ↓</p><small>hidróxido de magnesio</small></div>
+</div>
+<div class="pie"><p>Fuente: Liu et al. (2024) [1]; Comstock et al. (2011) [2]</p><p class="pag"></p></div>
+<aside>Primer clic: se dosifica carbonato y el calcio disuelto se une a él y cae como carbonato de calcio. Segundo clic: con el pH adecuado, el magnesio precipita como hidróxido de magnesio. Qué reactivo usar, cal, carbonato de sodio o hidróxido de sodio, lo definen las pruebas de jarras. Evidencia: Liu et al. 2024 reportaron más del 97 % de remoción de calcio y magnesio en condiciones óptimas con rechazo industrial real [1]. Es evidencia que respalda los ensayos, no un resultado nuestro.</aside>
+<script>
+(function () {
+  const sec = document.getElementById('quimica'), cv = document.getElementById('iones'), g = cv.getContext('2d');
+  const W = 1040, H = 700, R = 27, ION = {
+    Ca: { c: '#ffd23f', t: '#1b2a9b', s: 'Ca²⁺' }, CO3: { c: '#1b2a9b', t: '#ffffff', s: 'CO₃²⁻' },
+    Mg: { c: '#f58a4f', t: '#ffffff', s: 'Mg²⁺' }, OH: { c: '#ffffff', t: '#1b2a9b', s: 'OH⁻' } };
+  const iones = [], cristales = [], pila = new Array(21).fill(0);
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const contar = (k) => iones.filter((i) => i.k === k).length;
+  function nuevo(k, desdeArriba) { iones.push({ k, x: rnd(60, W - 60), y: desdeArriba ? -30 : rnd(70, H - 240), vx: rnd(-0.5, 0.5), vy: desdeArriba ? 1.1 : rnd(-0.3, 0.3) }); }
+  for (let i = 0; i < 9; i++) nuevo('Ca'); for (let i = 0; i < 6; i++) nuevo('Mg');
+  let t0 = performance.now(), acc = 0;
+  function hexagono(x, y, r, borde) {
+    g.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.closePath();
+    g.fillStyle = '#ffffff'; g.fill(); g.lineWidth = 4; g.strokeStyle = borde; g.stroke();
+  }
+  function paso(dt) {
+    const p = Number(sec.dataset.paso || 0); acc += dt;
+    if (acc > 0.55) { acc = 0; if (p >= 1 && contar('CO3') < 6) nuevo('CO3', true); if (p >= 2 && contar('OH') < 5) nuevo('OH', true); if (contar('Ca') < 7) nuevo('Ca', true); if (contar('Mg') < 5) nuevo('Mg', true); }
+    const atrae = { Ca: 'CO3', CO3: 'Ca', Mg: 'OH', OH: 'Mg' };
+    for (const a of iones) { let mejor = null, dm = 420; for (const b of iones) { if (b.k !== atrae[a.k]) continue; const d = Math.hypot(b.x - a.x, b.y - a.y); if (d < dm) { dm = d; mejor = b; } } if (mejor) { a.vx += (mejor.x - a.x) / dm * 0.05; a.vy += (mejor.y - a.y) / dm * 0.05; } }
+    for (const i of iones) { i.vx += rnd(-0.06, 0.06); i.vy += rnd(-0.05, 0.05); i.vx *= 0.985; i.vy = i.vy * 0.985 + 0.004; i.x += i.vx * 60 * dt; i.y += i.vy * 60 * dt; if (i.x < R) { i.x = R; i.vx = Math.abs(i.vx); } if (i.x > W - R) { i.x = W - R; i.vx = -Math.abs(i.vx); } if (i.y > H - 200) { i.y = H - 200; i.vy = -Math.abs(i.vy); } }
+    const par = { Ca: 'CO3', Mg: 'OH' };
+    for (const a of iones.slice()) { if (!par[a.k]) continue; const b = iones.find((o) => o.k === par[a.k] && Math.hypot(o.x - a.x, o.y - a.y) < R * 2.1); if (!b) continue;
+      iones.splice(iones.indexOf(a), 1); iones.splice(iones.indexOf(b), 1); cristales.push({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, vy: 0.4, borde: a.k === 'Ca' ? '#1b2a9b' : '#f58a4f' }); }
+    for (const c of cristales) { if (c.fijo) continue; c.vy = Math.min(c.vy + 0.05 * 60 * dt, 4.2); c.y += c.vy * 60 * dt; const col = Math.max(0, Math.min(20, Math.round(c.x / 50))); const suelo = H - 34 - pila[col]; if (c.y >= suelo) { c.y = suelo; c.fijo = true; pila[col] = Math.min(pila[col] + 26, 150); } }
+    if (cristales.length > 160) cristales.splice(0, 20);
+  }
+  function dibujar() {
+    g.clearRect(0, 0, W, H);
+    for (const c of cristales) hexagono(c.x, c.y, 21, c.borde);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (const i of iones) { const d = ION[i.k]; g.beginPath(); g.arc(i.x, i.y, R, 0, 7); g.fillStyle = d.c; g.fill(); g.lineWidth = 3; g.strokeStyle = 'rgba(255,255,255,0.9)'; g.stroke(); g.fillStyle = d.t; g.font = '800 ' + (d.s.length > 4 ? 17 : 21) + 'px Montserrat, Arial'; g.fillText(d.s, i.x, i.y + 1); }
+  }
+  function cuadro(ahora) {
+    requestAnimationFrame(cuadro); const dt = Math.min(0.05, (ahora - t0) / 1000); t0 = ahora;
+    if (!sec.classList.contains('activa')) return; paso(dt); dibujar();
+  }
+  requestAnimationFrame(cuadro);
+})();
+</script>
+</section>

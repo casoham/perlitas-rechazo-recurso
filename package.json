@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.65.1",
+    "three": "^0.187.0"
+  }
+}

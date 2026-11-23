@@ -1,0 +1,60 @@
+<section id="porque" class="cielo" data-pasos="1" data-trans="ola">
+<h2 class="titulo">Precipitar quita la dureza de frente</h2>
+<div class="lienzo">
+<canvas id="carriles" width="1664" height="500" aria-label="Cuatro tratamientos frente a la dureza disuelta: filtración, intercambio iónico, otra ósmosis y precipitación"></canvas>
+<div class="lane"><div class="nombre" style="left:0">Filtración</div><div class="veredicto" style="left:0">Deja pasar lo disuelto<small>no retiene calcio ni magnesio</small></div></div>
+<div class="lane"><div class="nombre" style="left:421px">Intercambio iónico</div><div class="veredicto" style="left:421px">Se agota<small>regenerar deja salmuera</small></div></div>
+<div class="lane"><div class="nombre" style="left:842px">Otra ósmosis</div><div class="veredicto" style="left:842px">Concentra más<small>riesgo de incrustación</small></div></div>
+<div class="lane gana"><div class="nombre" style="left:1263px">Precipitación</div><div class="veredicto" style="left:1263px">Sale como sólido<small>exige manejar el lodo</small></div></div>
+</div>
+<div class="pie"><p>Fuente: guía técnica del proyecto, v2 · Comstock et al. (2011) [2]</p><p class="pag"></p></div>
+<aside>Por qué precipitación y no otra opción, con evidencia de Comstock y colaboradores [2] que comparan ablandamiento por precipitación, coagulación e intercambio aniónico en concentrados. Filtrar retiene sólidos, pero no la dureza disuelta. El intercambio iónico ablanda pero necesita regeneración y genera salmuera. Otra ósmosis concentra aún más las sales y aumenta el riesgo de incrustación. La precipitación actúa sobre calcio y magnesio y se hace con equipo sencillo; su costo es que genera lodo, y ese lodo tiene su propia ruta. Clic: resalta la opción propuesta.</aside>
+<script>
+(function () {
+  const sec = document.getElementById('porque'), cv = document.getElementById('carriles'), g = cv.getContext('2d');
+  const W = 1664, H = 500, LW = 400, GAP = 421, Y_ACCION = 230, R = 13;
+  const iones = [], cristales = [], bloqueados = [];
+  let resina = 0, t0 = performance.now(), acc = 0;
+  const pila = new Array(9).fill(0);
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function nuevo(l) { iones.push({ l, x: l * GAP + rnd(40, LW - 40), y: -20, vx: rnd(-0.3, 0.3), vy: rnd(1.4, 2.1) }); }
+  function paso(dt) {
+    acc += dt; if (acc > 0.3) { acc = 0; for (let l = 0; l < 4; l++) nuevo(l); }
+    for (const i of iones.slice()) {
+      i.x += i.vx * 60 * dt; i.y += i.vy * 60 * dt; const x0 = i.l * GAP + R + 4, x1 = i.l * GAP + LW - R - 4; if (i.x < x0) i.x = x0; if (i.x > x1) i.x = x1;
+      if (i.l === 1 && i.y > 250 && i.y < 340 && resina < 1) { resina = Math.min(1, resina + 0.012); iones.splice(iones.indexOf(i), 1); continue; }
+      if (i.l === 2 && i.y > Y_ACCION) { i.y = Y_ACCION - rnd(0, 120); i.vy = rnd(-0.4, 0.2); i.vx = rnd(-1, 1); bloqueados.push(i); iones.splice(iones.indexOf(i), 1); continue; }
+      if (i.l === 3 && i.y > Y_ACCION - 20) { cristales.push({ x: i.x, y: i.y, vy: 0.8 }); iones.splice(iones.indexOf(i), 1); continue; }
+      if (i.y > H + 20) iones.splice(iones.indexOf(i), 1);
+    }
+    for (const b of bloqueados) { b.vx += rnd(-0.1, 0.1); b.vy += rnd(-0.1, 0.1); b.x += b.vx * 30 * dt; b.y += b.vy * 30 * dt; const x0 = 2 * GAP + R + 4, x1 = 2 * GAP + LW - R - 4; if (b.x < x0 || b.x > x1) b.vx *= -1; b.x = Math.max(x0, Math.min(x1, b.x)); if (b.y > Y_ACCION - R) b.y = Y_ACCION - R; if (b.y < 40) b.y = 40; }
+    if (bloqueados.length > 34) bloqueados.shift();
+    for (const c of cristales.slice()) { c.vy = Math.min(c.vy + 0.05, 3); c.y += c.vy * 60 * dt; const col = Math.max(0, Math.min(8, Math.round((c.x - 3 * GAP) / 45))); const suelo = H - 24 - pila[col]; if (c.y >= suelo) { c.y = suelo; c.fijo = true; pila[col] = Math.min(pila[col] + 18, 90); } if (c.fijo) { c.t = (c.t || 0) + dt; } }
+    if (cristales.length > 90) cristales.splice(0, 20);
+  }
+  function hex(x, y, r) { g.beginPath(); for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.closePath(); g.fillStyle = '#fff'; g.fill(); g.lineWidth = 3; g.strokeStyle = '#1b2a9b'; g.stroke(); }
+  function dibujar(dim) {
+    g.clearRect(0, 0, W, H);
+    for (let l = 0; l < 4; l++) { g.globalAlpha = (dim && l < 3) ? 0.3 : 1; g.fillStyle = l === 3 ? 'rgba(255,255,255,0.78)' : 'rgba(255,255,255,0.5)'; g.beginPath(); g.roundRect(l * GAP, 0, LW, H, 36); g.fill(); }
+    g.globalAlpha = (dim) ? 0.3 : 1;
+    // filtración: malla
+    g.strokeStyle = '#1b2a9b'; g.lineWidth = 5; g.setLineDash([10, 8]); g.beginPath(); g.moveTo(24, Y_ACCION); g.lineTo(LW - 24, Y_ACCION); g.stroke(); g.setLineDash([]);
+    // intercambio: lecho de resina que se vuelve naranja al saturarse
+    for (let k = 0; k < 40; k++) { const bx = GAP + 40 + (k % 10) * 32, by = 262 + Math.floor(k / 10) * 24; g.beginPath(); g.arc(bx, by, 11, 0, 7); g.fillStyle = `rgb(${Math.round(120 + 125 * resina)},${Math.round(190 - 52 * resina)},${Math.round(240 - 160 * resina)})`; g.fill(); }
+    // ósmosis: membrana
+    g.fillStyle = '#1b2a9b'; g.fillRect(2 * GAP + 24, Y_ACCION, LW - 48, 8);
+    // ablandar: línea de acción
+    g.globalAlpha = 1;
+    for (const c of cristales) { g.globalAlpha = 1; hex(c.x, c.y, 15); }
+    for (const i of iones) { g.globalAlpha = (dim && i.l < 3) ? 0.3 : 1; g.beginPath(); g.arc(i.x, i.y, R, 0, 7); g.fillStyle = '#ffd23f'; g.fill(); g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke(); }
+    for (const b of bloqueados) { g.globalAlpha = dim ? 0.3 : 1; g.beginPath(); g.arc(b.x, b.y, R, 0, 7); g.fillStyle = '#ffd23f'; g.fill(); g.lineWidth = 2; g.strokeStyle = '#fff'; g.stroke(); }
+    g.globalAlpha = 1;
+  }
+  function cuadro(ahora) {
+    requestAnimationFrame(cuadro); const dt = Math.min(0.05, (ahora - t0) / 1000); t0 = ahora;
+    if (!sec.classList.contains('activa')) return; paso(dt); dibujar(Number(sec.dataset.paso || 0) >= 1);
+  }
+  requestAnimationFrame(cuadro);
+})();
+</script>
+</section>
