@@ -2,7 +2,7 @@
   "titulo": "Del rechazo al recurso · Agua Las Perlitas",
   "descripcion": "Pitch preliminar: reúso del agua de rechazo de ósmosis inversa en refrigeración mediante precipitación química.",
   "fuentes": "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap",
-  "fondo": "recursos/fondo.html",
+  "fondo": "ninguno",
   "css": [
     "tema.css",
     "piezas.css"
@@ -23,5 +23,6 @@
     "validaciones",
     "cierre",
     "referencias"
-  ]
+  ],
+  "fondoGlobal": "recursos/fondo-global.html"
 }

@@ -45,7 +45,7 @@ for (const id of config.orden) {
   s = s.replace(/<x-icon name="(\w+)"(?: style="([^"]*)")?><\/x-icon>/g, (_, n, st = '') =>
     `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="${st}; flex:none;">${iconos[n] ?? ''}</svg>`);
   // Fondo vivo detrás del contenido (se puede quitar con data-sin-fondo en la sección)
-  const fondoHtml = config.fondo ? leer(config.fondo) : '<canvas class="ambiente" width="1920" height="1080" aria-hidden="true"></canvas>';
+  const fondoHtml = config.fondo === 'ninguno' ? '' : config.fondo ? leer(config.fondo) : '<canvas class="ambiente" width="1920" height="1080" aria-hidden="true"></canvas>';
   if (!/data-sin-fondo/.test(s.split('>')[0])) s = s.replace(/(<section[^>]*>)/, (m) => m + '\n' + fondoHtml);
   secciones += s + '\n';
 }
@@ -70,6 +70,7 @@ ${css}
 </style>
 </head>
 <body>
+${config.fondoGlobal ? leer(config.fondoGlobal) : ''}
 <main id="escenario" aria-live="polite"${config.agua ? ' data-agua' : ''}>
 ${secciones}</main>
 <div id="notas" role="note"></div>

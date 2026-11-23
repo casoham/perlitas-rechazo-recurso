@@ -28,8 +28,8 @@
   --ola-1: rgba(255, 255, 255, 0.55); --ola-2: rgba(255, 255, 255, 0.28); --ola-3: rgba(255, 255, 255, 0.14);
 }
 body, html { background: #0e3f9c; }
-section { background: linear-gradient(180deg, var(--cielo-alto) 0%, var(--cielo-bajo) 100%); -webkit-font-smoothing: antialiased; }
-section.cielo { background: linear-gradient(180deg, var(--celeste) 0%, var(--celeste-claro) 100%); --tinta: var(--azul-marca); --suave: #3f56c4; --linea: rgba(27, 42, 155, 0.25); --acento: var(--azul-vivo); --azul: var(--azul-vivo);
+section { background: none; -webkit-font-smoothing: antialiased; }
+section.cielo { --tinta: var(--azul-marca); --suave: #3f56c4; --linea: rgba(27, 42, 155, 0.25); --acento: var(--azul-vivo); --azul: var(--azul-vivo);
   --ola-1: rgba(56, 182, 245, 0.45); --ola-2: rgba(56, 182, 245, 0.28); --ola-3: rgba(28, 110, 232, 0.16); color: var(--tinta); }
 .titulo { font-weight: 700; letter-spacing: -2px; text-wrap: balance; max-width: 1500px; }
 .num { letter-spacing: -2px; font-variant-numeric: tabular-nums; }
@@ -106,3 +106,21 @@ section.activa.mismo-grupo .entra { animation-delay: calc(var(--i, 0) * 120ms + 
 #quimica .globito.amarillo { right: 128px; top: 60px; width: 200px; height: 200px; z-index: -1; }
 #quimica .globo-q .s { margin-top: 4px; }
 sub, sup { font-size: 0.6em; line-height: 0; }
+
+/* ===== Fondo de agua a pantalla completa (sin franjas al pasar a F): el degradado, las olas y las burbujas viven fuera del lienzo ===== */
+body { --ola-1: rgba(255, 255, 255, 0.55); --ola-2: rgba(255, 255, 255, 0.28); --ola-3: rgba(255, 255, 255, 0.14); }
+body[data-clases~="cielo"] { --ola-1: rgba(56, 182, 245, 0.45); --ola-2: rgba(56, 182, 245, 0.28); --ola-3: rgba(28, 110, 232, 0.16); }
+#fondo-global { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+#fondo-global .fg { position: absolute; inset: 0; transition: opacity 0.4s ease; }
+#fondo-global .fg-azur { background: linear-gradient(180deg, var(--cielo-alto) 0%, var(--cielo-bajo) 100%); }
+#fondo-global .fg-cielo { background: linear-gradient(180deg, var(--celeste) 0%, var(--celeste-claro) 100%); opacity: 0; }
+body[data-clases~="cielo"] #fondo-global .fg-cielo { opacity: 1; }
+#fondo-global .ola { position: absolute; left: 0; bottom: calc(-30px * var(--e, 1)); width: calc(7680px * var(--e, 1)); height: calc(220px * var(--e, 1)); will-change: transform; animation: derivaG 24s linear infinite; }
+#fondo-global .ola path { fill: var(--ola-1); }
+#fondo-global .ola.o2 { bottom: calc(-58px * var(--e, 1)); animation-duration: 33s; animation-direction: reverse; } #fondo-global .ola.o2 path { fill: var(--ola-2); }
+#fondo-global .ola.o3 { bottom: calc(-88px * var(--e, 1)); animation-duration: 45s; } #fondo-global .ola.o3 path { fill: var(--ola-3); }
+@keyframes derivaG { from { transform: translateX(0); } to { transform: translateX(calc(-1920px * var(--e, 1))); } }
+#fondo-global .burbuja { position: absolute; left: var(--x); bottom: -60px; width: calc(var(--s) * var(--e, 1)); height: calc(var(--s) * var(--e, 1)); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.7); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.05) 60%); animation: subirG var(--t) linear infinite; animation-delay: var(--d); will-change: transform; }
+body[data-clases~="cielo"] #fondo-global .burbuja { border-color: rgba(28, 110, 232, 0.35); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(98, 200, 242, 0.12) 60%); }
+@keyframes subirG { 0% { transform: translate(0, 0); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(18px, -60vh); } 100% { transform: translate(-14px, -115vh); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #fondo-global .ola, #fondo-global .burbuja { animation: none; } }

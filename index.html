@@ -231,8 +231,8 @@ body.raton #ayuda { opacity: 1; }
   --ola-1: rgba(255, 255, 255, 0.55); --ola-2: rgba(255, 255, 255, 0.28); --ola-3: rgba(255, 255, 255, 0.14);
 }
 body, html { background: #0e3f9c; }
-section { background: linear-gradient(180deg, var(--cielo-alto) 0%, var(--cielo-bajo) 100%); -webkit-font-smoothing: antialiased; }
-section.cielo { background: linear-gradient(180deg, var(--celeste) 0%, var(--celeste-claro) 100%); --tinta: var(--azul-marca); --suave: #3f56c4; --linea: rgba(27, 42, 155, 0.25); --acento: var(--azul-vivo); --azul: var(--azul-vivo);
+section { background: none; -webkit-font-smoothing: antialiased; }
+section.cielo { --tinta: var(--azul-marca); --suave: #3f56c4; --linea: rgba(27, 42, 155, 0.25); --acento: var(--azul-vivo); --azul: var(--azul-vivo);
   --ola-1: rgba(56, 182, 245, 0.45); --ola-2: rgba(56, 182, 245, 0.28); --ola-3: rgba(28, 110, 232, 0.16); color: var(--tinta); }
 .titulo { font-weight: 700; letter-spacing: -2px; text-wrap: balance; max-width: 1500px; }
 .num { letter-spacing: -2px; font-variant-numeric: tabular-nums; }
@@ -309,6 +309,24 @@ section.activa.mismo-grupo .entra { animation-delay: calc(var(--i, 0) * 120ms + 
 #quimica .globito.amarillo { right: 128px; top: 60px; width: 200px; height: 200px; z-index: -1; }
 #quimica .globo-q .s { margin-top: 4px; }
 sub, sup { font-size: 0.6em; line-height: 0; }
+
+/* ===== Fondo de agua a pantalla completa (sin franjas al pasar a F): el degradado, las olas y las burbujas viven fuera del lienzo ===== */
+body { --ola-1: rgba(255, 255, 255, 0.55); --ola-2: rgba(255, 255, 255, 0.28); --ola-3: rgba(255, 255, 255, 0.14); }
+body[data-clases~="cielo"] { --ola-1: rgba(56, 182, 245, 0.45); --ola-2: rgba(56, 182, 245, 0.28); --ola-3: rgba(28, 110, 232, 0.16); }
+#fondo-global { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+#fondo-global .fg { position: absolute; inset: 0; transition: opacity 0.4s ease; }
+#fondo-global .fg-azur { background: linear-gradient(180deg, var(--cielo-alto) 0%, var(--cielo-bajo) 100%); }
+#fondo-global .fg-cielo { background: linear-gradient(180deg, var(--celeste) 0%, var(--celeste-claro) 100%); opacity: 0; }
+body[data-clases~="cielo"] #fondo-global .fg-cielo { opacity: 1; }
+#fondo-global .ola { position: absolute; left: 0; bottom: calc(-30px * var(--e, 1)); width: calc(7680px * var(--e, 1)); height: calc(220px * var(--e, 1)); will-change: transform; animation: derivaG 24s linear infinite; }
+#fondo-global .ola path { fill: var(--ola-1); }
+#fondo-global .ola.o2 { bottom: calc(-58px * var(--e, 1)); animation-duration: 33s; animation-direction: reverse; } #fondo-global .ola.o2 path { fill: var(--ola-2); }
+#fondo-global .ola.o3 { bottom: calc(-88px * var(--e, 1)); animation-duration: 45s; } #fondo-global .ola.o3 path { fill: var(--ola-3); }
+@keyframes derivaG { from { transform: translateX(0); } to { transform: translateX(calc(-1920px * var(--e, 1))); } }
+#fondo-global .burbuja { position: absolute; left: var(--x); bottom: -60px; width: calc(var(--s) * var(--e, 1)); height: calc(var(--s) * var(--e, 1)); border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.7); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.05) 60%); animation: subirG var(--t) linear infinite; animation-delay: var(--d); will-change: transform; }
+body[data-clases~="cielo"] #fondo-global .burbuja { border-color: rgba(28, 110, 232, 0.35); background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(98, 200, 242, 0.12) 60%); }
+@keyframes subirG { 0% { transform: translate(0, 0); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(18px, -60vh); } 100% { transform: translate(-14px, -115vh); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #fondo-global .ola, #fondo-global .burbuja { animation: none; } }
 
 /* Piezas de las diapositivas del pitch (usan los tokens de tema.css). Una idea por diapositiva. */
 .lienzo { position: absolute; left: 128px; top: 262px; width: 1664px; height: 660px; }
@@ -490,14 +508,17 @@ section.cielo .camino .linea i { background: var(--azul-vivo); }
 </style>
 </head>
 <body>
+<div id="fondo-global" aria-hidden="true">
+<div class="fg fg-azur"></div><div class="fg fg-cielo"></div>
+<svg class="ola o3" viewBox="0 0 7680 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
+<svg class="ola o2" viewBox="0 0 7680 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
+<svg class="ola o1" viewBox="0 0 7680 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
+<i class="burbuja" style="--x:3%;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:11%;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:19%;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:27%;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:35%;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:43%;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:51%;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:59%;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:67%;--s:10px;--t:9s;--d:-7s"></i><i class="burbuja" style="--x:75%;--s:26px;--t:16s;--d:-4s"></i><i class="burbuja" style="--x:83%;--s:14px;--t:12s;--d:-10s"></i><i class="burbuja" style="--x:91%;--s:20px;--t:14s;--d:-6s"></i><i class="burbuja" style="--x:97%;--s:12px;--t:10s;--d:-2s"></i>
+</div>
+
 <main id="escenario" aria-live="polite" data-agua>
 <section id="portada" class="azur">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <div class="contenido">
 <img class="logo entra" style="--i:0" src="recursos/logo-a.png" alt="Agua Las Perlitas">
 <h1 class="entra" style="--i:1">Del rechazo al recurso</h1>
@@ -514,12 +535,7 @@ section.cielo .camino .linea i { background: var(--azul-vivo); }
 </section>
 
 <section id="contexto" class="cielo" data-trans="botella">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">Hoy el rechazo se va por el desagüe</h2>
 <div class="lienzo">
 <svg width="1664" height="660" viewBox="0 0 1664 660" role="img" aria-label="El equipo de ósmosis inversa separa agua purificada, que llena la botella, y rechazo, que va al desagüe">
@@ -552,19 +568,15 @@ section.cielo .camino .linea i { background: var(--azul-vivo); }
 </section>
 
 <section id="necesidad" class="azur" data-trans="ola">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">La dureza es lo que frena su reúso</h2>
 <div class="lienzo">
 <svg width="1664" height="660" viewBox="0 0 1664 660" role="img" aria-label="Dentro de una tubería, el calcio y el magnesio disueltos forman incrustación en las paredes y el paso del agua se estrecha">
+<defs><clipPath id="interior"><rect x="0" y="90" width="1664" height="400" rx="46"/></clipPath></defs>
 <rect x="0" y="90" width="1664" height="400" rx="46" fill="#0f3fa8"/>
 <rect x="0" y="126" width="1664" height="328" fill="#38b6f5"/>
-<g class="costra-a"><path d="M0 126 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 V100 H0Z" fill="#fff"/></g>
-<g class="costra-b"><path d="M0 454 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 V480 H0Z" fill="#fff"/></g>
+<g clip-path="url(#interior)"><g class="costra-a"><path d="M0 126 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 q40 150 80 0 q40 110 80 0 q40 140 80 0 q40 120 80 0 V100 H0Z" fill="#fff"/></g>
+<g class="costra-b"><path d="M0 454 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 q40 -150 80 0 q40 -110 80 0 q40 -140 80 0 q40 -120 80 0 V480 H0Z" fill="#fff"/></g></g>
 <g>
 <circle class="ion-flujo" style="--k:0" cx="0" cy="250" r="22" fill="#ffd23f"/><circle class="ion-flujo" style="--k:1" cx="0" cy="330" r="22" fill="#f58a4f"/><circle class="ion-flujo" style="--k:2" cx="0" cy="290" r="22" fill="#ffd23f"/>
 <circle class="ion-flujo" style="--k:3" cx="0" cy="360" r="22" fill="#ffd23f"/><circle class="ion-flujo" style="--k:4" cx="0" cy="220" r="22" fill="#f58a4f"/><circle class="ion-flujo" style="--k:5" cx="0" cy="395" r="22" fill="#f58a4f"/>
@@ -579,12 +591,7 @@ section.cielo .camino .linea i { background: var(--azul-vivo); }
 </section>
 
 <section id="propuesta" class="azur" data-trans="ondas">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">El rechazo vuelve a trabajar</h2>
 <div class="lienzo">
 <svg width="1664" height="660" viewBox="0 0 1664 660" role="img" aria-label="El rechazo de la ósmosis inversa pasa por un tratamiento y llega a refrigeración, en lugar de ir al desagüe">
@@ -608,12 +615,7 @@ section.cielo .camino .linea i { background: var(--azul-vivo); }
 </section>
 
 <section id="planta" class="cielo" data-pasos="6" data-trans="cascada">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <canvas class="c3d" id="c3d" width="1920" height="1080" aria-label="Modelo 3D de la planta de tratamiento"></canvas>
 <h2 class="titulo">Seis etapas. Una gota que vuelve.</h2>
 <div class="rotulos">
@@ -4867,12 +4869,7 @@ three/build/three.module.js:
 </section>
 
 <section id="quimica" class="azur" data-pasos="2" data-trans="ondas">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <div class="globito amarillo"></div>
 <h2 class="titulo">La dureza se queda en el fondo</h2>
 <div class="vaso"><canvas id="iones" width="1040" height="700" aria-label="Iones de calcio y magnesio que se unen y caen como sólido"></canvas></div>
@@ -4926,12 +4923,7 @@ three/build/three.module.js:
 </section>
 
 <section id="jarras" class="cielo" data-trans="ola">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">La dosis se encuentra en jarras</h2>
 <div class="lienzo">
 <div class="jarra" style="left:0px">
@@ -4997,12 +4989,7 @@ three/build/three.module.js:
 </section>
 
 <section id="evidencia" class="azur" data-trans="ondas">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">Otros ya lograron más del 97 %</h2>
 <div class="lienzo">
 <svg class="vaso97" width="380" height="580" viewBox="0 0 380 580" role="img" aria-label="Un vaso que se llena hasta el 97 %">
@@ -5019,12 +5006,7 @@ three/build/three.module.js:
 </section>
 
 <section id="lodos" class="azur" data-pasos="3" data-trans="cascada">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">El lodo también tiene su ruta</h2>
 <div class="lienzo">
 <div class="camino" style="--n:4">
@@ -5044,12 +5026,7 @@ three/build/three.module.js:
 </section>
 
 <section id="costos" class="cielo" data-trans="ola">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">Primero un piloto básico, antes de invertir más</h2>
 <div class="lienzo">
 <div class="rango"><small>US$</small><span class="num" data-contar="2800" data-miles>0</span><span class="guion">–</span><span class="num" data-contar="4400" data-miles>0</span></div>
@@ -5070,12 +5047,7 @@ three/build/three.module.js:
 </section>
 
 <section id="impacto" class="azur" data-trans="ola">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">Cada metro cúbico reutilizado suma</h2>
 <div class="lienzo">
 <div class="ecuacion">
@@ -5094,12 +5066,7 @@ three/build/three.module.js:
 </section>
 
 <section id="validaciones" class="cielo" data-pasos="4" data-trans="ola">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">Cinco comprobaciones antes de decidir</h2>
 <div class="lienzo">
 <div class="camino" style="--n:5">
@@ -5119,12 +5086,7 @@ three/build/three.module.js:
 </section>
 
 <section id="cierre" class="azur" data-trans="botella">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <div class="globito amarillo"></div>
 <div class="globito naranja"></div>
 <div class="centro">
@@ -5135,12 +5097,7 @@ three/build/three.module.js:
 </section>
 
 <section id="referencias" class="cielo" data-trans="ola">
-<div class="mar" aria-hidden="true">
-<svg class="ola o3" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o2" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<svg class="ola o1" viewBox="0 0 3840 220" preserveAspectRatio="none"><path d="M0 110 q240 -80 480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 t480 0 V220 H0 Z"/></svg>
-<i class="burbuja" style="--x:140px;--s:22px;--t:14s;--d:-2s"></i><i class="burbuja" style="--x:420px;--s:14px;--t:11s;--d:-6s"></i><i class="burbuja" style="--x:700px;--s:30px;--t:17s;--d:-9s"></i><i class="burbuja" style="--x:980px;--s:16px;--t:12s;--d:-1s"></i><i class="burbuja" style="--x:1240px;--s:24px;--t:15s;--d:-5s"></i><i class="burbuja" style="--x:1500px;--s:12px;--t:10s;--d:-8s"></i><i class="burbuja" style="--x:1760px;--s:28px;--t:18s;--d:-3s"></i><i class="burbuja" style="--x:300px;--s:18px;--t:13s;--d:-11s"></i><i class="burbuja" style="--x:1120px;--s:10px;--t:9s;--d:-7s"></i>
-</div>
+
 <h2 class="titulo">Fuentes de la propuesta</h2>
 <div class="lista">
 <p class="ref" style="--k:0"><b>[1]</b>Liu et al. (2024). Removal of calcium and magnesium ions from reverse osmosis concentrate using a two-stage precipitation with carbonation process. Environmental Science and Pollution Research, 31, 45495-45506.</p>
@@ -5173,6 +5130,7 @@ three/build/three.module.js:
   function ajustar() {
     escala = Math.min(innerWidth / 1920, innerHeight / 1080);
     escenario.style.transform = 'scale(' + escala + ') translate(-50%, -50%)';
+    document.documentElement.style.setProperty('--e', escala);
   }
   const pasos = (d) => [...d.querySelectorAll('.fragment')];
   const CLASES = ['activa', 'sale-adelante', 'sale-atras', 'llega-adelante', 'llega-atras', 'mismo-grupo'];
@@ -5218,13 +5176,19 @@ three/build/three.module.js:
   const agua = escenario.hasAttribute('data-agua');
   let ocupado = false;
   const NS = 'http://www.w3.org/2000/svg';
-  function capaSvg(w, h, d, fill) {
-    return '<svg xmlns="' + NS + '" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="position:absolute;left:0;top:0"><path d="' + d + '" fill="' + fill + '"/></svg>';
+  // El velo cubre TODA la pantalla (también las franjas que quedan a los lados o arriba y abajo en pantalla completa):
+  // se dibuja en coordenadas de la diapositiva (1920×1080) y se extiende por los márgenes px, py.
+  function capaSvg(w, h, d, fill, hh) {
+    return '<svg xmlns="' + NS + '" width="' + w + '" height="' + (hh || h) + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="position:absolute;left:0;top:0"><path d="' + d + '" fill="' + fill + '"/></svg>';
   }
+  function margenes() { return { px: Math.max(0, (innerWidth / escala - 1920) / 2), py: Math.max(0, (innerHeight / escala - 1080) / 2) }; }
   function velo() {
-    let v = document.getElementById('velo');
-    if (!v) { v = document.createElement('div'); v.id = 'velo'; v.style.cssText = 'position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;z-index:60;pointer-events:none;'; escenario.appendChild(v); }
-    v.innerHTML = ''; return v;
+    let g = document.getElementById('velo');
+    if (!g) {
+      g = document.createElement('div'); g.id = 'velo'; g.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;overflow:hidden;z-index:60;pointer-events:none;';
+      const s = document.createElement('div'); s.style.cssText = 'position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;'; g.appendChild(s); document.body.appendChild(g);
+    }
+    const s = g.firstChild; s.style.transform = 'scale(' + escala + ') translate(-50%, -50%)'; s.innerHTML = ''; return s;
   }
   const BOTELLA = '<svg class="botella" xmlns="' + NS + '" viewBox="0 0 220 560" width="393" height="1000" style="position:absolute;left:-536px;top:40px;transform:rotate(-90deg);filter:drop-shadow(0 30px 40px rgba(10,40,120,.35))">'
     + '<defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#e7f7ff"/><stop offset=".5" stop-color="#bfe8fb"/><stop offset="1" stop-color="#9fd9f5"/></linearGradient></defs>'
@@ -5237,30 +5201,30 @@ three/build/three.module.js:
   function ola(dir, swap, fin, conBotella) {
     const W = 4300;
     const d = 'M120 0 q-90 90 0 180 t0 180 t0 180 t0 180 t0 180 t0 180 H' + (W - 120) + ' q90 -90 0 -180 t0 -180 t0 -180 t0 -180 t0 -180 t0 -180 Z';
-    const v = velo(); const flip = dir < 0 ? -1 : 1;
-    v.innerHTML = '<div style="position:absolute;inset:0;transform:scaleX(' + flip + ')">' + [['#eafaff', 0], ['#62c8f2', 150], ['#1b2a9b', 310]].map(function (p, i) {
-      return '<div class="capa-ola" style="position:absolute;left:0;top:0;width:' + W + 'px;height:1080px;will-change:transform">' + capaSvg(W, 1080, d, p[0]) + (i === 0 && conBotella ? BOTELLA : '') + '</div>';
+    const v = velo(); const flip = dir < 0 ? -1 : 1; const m = margenes();
+    v.innerHTML = '<div style="position:absolute;left:' + (-m.px) + 'px;right:' + (-m.px) + 'px;top:0;bottom:0;transform:scaleX(' + flip + ')">' + [['#eafaff', 0], ['#62c8f2', 150], ['#1b2a9b', 310]].map(function (p, i) {
+      return '<div class="capa-ola" style="position:absolute;left:0;top:' + (-m.py) + 'px;width:' + W + 'px;height:' + (1080 + 2 * m.py) + 'px;will-change:transform">' + capaSvg(W, 1080, d, p[0], 1080 + 2 * m.py) + (i === 0 && conBotella ? BOTELLA.replace('top:40px', 'top:' + (40 + m.py) + 'px') : '') + '</div>';
     }).join('') + '</div>';
     const capas = [...v.querySelectorAll('.capa-ola')]; const dur = conBotella ? 1500 : 1250;
-    capas.forEach((c, i) => c.animate([{ transform: 'translateX(2320px)' }, { transform: 'translateX(' + (-W - 300) + 'px)' }], { duration: dur, delay: i * 80, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' }));
+    capas.forEach((c, i) => c.animate([{ transform: 'translateX(' + (2320 + 2 * m.px) + 'px)' }, { transform: 'translateX(' + (-W - 300 - 2 * m.px) + 'px)' }], { duration: dur, delay: i * 80, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' }));
     const b = v.querySelector('.botella'); if (b) b.animate([{ transform: 'rotate(-93deg)' }, { transform: 'rotate(-87deg)' }, { transform: 'rotate(-93deg)' }], { duration: 700, iterations: 3, easing: 'ease-in-out' });
     setTimeout(swap, dur * 0.52 + 160); setTimeout(() => { v.innerHTML = ''; fin(); }, dur + 260);
   }
   function cascada(dir, swap, fin) {
     const H = 2700; let d = 'M0 120'; for (let i = 0; i < 12; i++) d += i ? ' t160 0' : ' q80 -90 160 0'; d += ' V' + (H - 120); for (let i = 0; i < 12; i++) d += i ? ' t-160 0' : ' q-80 90 -160 0'; d += ' Z';
-    const v = velo(); const rayas = Array.from({ length: 26 }, (_, k) => '<rect x="' + (40 + k * 74) + '" y="' + (200 + (k * 137) % 1500) + '" width="5" height="' + (160 + (k * 53) % 260) + '" rx="3" fill="#fff" opacity=".35"/>').join('');
+    const v = velo(); const m = margenes(); const rayas = Array.from({ length: 26 }, (_, k) => '<rect x="' + (40 + k * 74) + '" y="' + (200 + (k * 137) % 1500) + '" width="5" height="' + (160 + (k * 53) % 260) + '" rx="3" fill="#fff" opacity=".35"/>').join('');
     v.innerHTML = [['#eafaff', 0], ['#62c8f2', 120], ['#1b2a9b', 260]].map(function (p, i) {
-      return '<div class="capa-ola" style="position:absolute;left:0;top:0;width:1920px;height:' + H + 'px;will-change:transform"><svg xmlns="' + NS + '" width="1920" height="' + H + '" viewBox="0 0 1920 ' + H + '"><path d="' + d + '" fill="' + p[0] + '"/>' + (i === 2 ? rayas : '') + '</svg></div>';
+      return '<div class="capa-ola" style="position:absolute;left:' + (-m.px) + 'px;top:0;width:' + (1920 + 2 * m.px) + 'px;height:' + H + 'px;will-change:transform"><svg xmlns="' + NS + '" width="' + (1920 + 2 * m.px) + '" height="' + H + '" viewBox="0 0 1920 ' + H + '" preserveAspectRatio="none"><path d="' + d + '" fill="' + p[0] + '"/>' + (i === 2 ? rayas : '') + '</svg></div>';
     }).join('');
-    const dur = 1250; [...v.querySelectorAll('.capa-ola')].forEach((c, i) => c.animate([{ transform: 'translateY(' + (-H - 200) + 'px)' }, { transform: 'translateY(1300px)' }], { duration: dur, delay: i * 90, easing: 'cubic-bezier(.55,0,.45,1)', fill: 'both' }));
+    const dur = 1250; [...v.querySelectorAll('.capa-ola')].forEach((c, i) => c.animate([{ transform: 'translateY(' + (-H - 200 - m.py) + 'px)' }, { transform: 'translateY(' + (1300 + 2 * m.py) + 'px)' }], { duration: dur, delay: i * 90, easing: 'cubic-bezier(.55,0,.45,1)', fill: 'both' }));
     setTimeout(swap, dur * 0.5 + 140); setTimeout(() => { v.innerHTML = ''; fin(); }, dur + 300);
   }
   function ondas(dir, swap, fin) {
-    const v = velo(); const x = 960, y = 1000;
-    v.innerHTML = '<div class="disco" style="position:absolute;inset:0;background:radial-gradient(circle at ' + x + 'px ' + y + 'px,#62c8f2 0%,#1c6ee8 45%,#1b2a9b 100%)"></div>'
+    const v = velo(); const m = margenes(); const x = 960, y = 1000; const gx = x + m.px, gy = y + m.py, R = 2300 + Math.max(m.px, m.py);
+    v.innerHTML = '<div class="disco" style="position:absolute;left:' + (-m.px) + 'px;right:' + (-m.px) + 'px;top:' + (-m.py) + 'px;bottom:' + (-m.py) + 'px;background:radial-gradient(circle at ' + gx + 'px ' + gy + 'px,#62c8f2 0%,#1c6ee8 45%,#1b2a9b 100%)"></div>'
       + [0, 1, 2].map(() => '<i class="anillo" style="position:absolute;left:' + (x - 160) + 'px;top:' + (y - 160) + 'px;width:320px;height:320px;border:6px solid #fff;border-radius:50%;opacity:0"></i>').join('');
     const disco = v.querySelector('.disco');
-    disco.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(2300px at ' + x + 'px ' + y + 'px)' }], { duration: 700, easing: 'cubic-bezier(.5,0,.3,1)', fill: 'both' });
+    disco.animate([{ clipPath: 'circle(0px at ' + gx + 'px ' + gy + 'px)' }, { clipPath: 'circle(' + R + 'px at ' + gx + 'px ' + gy + 'px)' }], { duration: 700, easing: 'cubic-bezier(.5,0,.3,1)', fill: 'both' });
     v.querySelectorAll('.anillo').forEach((a, i) => a.animate([{ transform: 'scale(.1)', opacity: .9 }, { transform: 'scale(9)', opacity: 0 }], { duration: 1100, delay: i * 160, easing: 'ease-out', fill: 'both' }));
     setTimeout(swap, 720);
     setTimeout(() => disco.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: 'ease-out', fill: 'both' }), 760);
@@ -5302,6 +5266,7 @@ three/build/three.module.js:
       vieja.querySelectorAll('video').forEach((v) => v.pause());
     }
     nueva.classList.add('activa');
+    document.body.dataset.clases = [...nueva.classList].filter((c) => !CLASES.includes(c)).join(' ');
     if (vieja && !quieto && !agua) nueva.classList.add(mismoGrupo ? 'mismo-grupo' : direccion < 0 ? 'llega-atras' : 'llega-adelante');
     nueva.querySelectorAll('video').forEach((v) => { v.currentTime = 0; v.play().catch(() => {}); });
     pasos(nueva).forEach((f) => f.classList.toggle('visible', Boolean(todosLosPasos)));

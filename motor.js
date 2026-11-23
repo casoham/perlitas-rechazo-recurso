@@ -11,6 +11,7 @@
   function ajustar() {
     escala = Math.min(innerWidth / 1920, innerHeight / 1080);
     escenario.style.transform = 'scale(' + escala + ') translate(-50%, -50%)';
+    document.documentElement.style.setProperty('--e', escala);
   }
   const pasos = (d) => [...d.querySelectorAll('.fragment')];
   const CLASES = ['activa', 'sale-adelante', 'sale-atras', 'llega-adelante', 'llega-atras', 'mismo-grupo'];
@@ -56,13 +57,19 @@
   const agua = escenario.hasAttribute('data-agua');
   let ocupado = false;
   const NS = 'http://www.w3.org/2000/svg';
-  function capaSvg(w, h, d, fill) {
-    return '<svg xmlns="' + NS + '" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="position:absolute;left:0;top:0"><path d="' + d + '" fill="' + fill + '"/></svg>';
+  // El velo cubre TODA la pantalla (también las franjas que quedan a los lados o arriba y abajo en pantalla completa):
+  // se dibuja en coordenadas de la diapositiva (1920×1080) y se extiende por los márgenes px, py.
+  function capaSvg(w, h, d, fill, hh) {
+    return '<svg xmlns="' + NS + '" width="' + w + '" height="' + (hh || h) + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="position:absolute;left:0;top:0"><path d="' + d + '" fill="' + fill + '"/></svg>';
   }
+  function margenes() { return { px: Math.max(0, (innerWidth / escala - 1920) / 2), py: Math.max(0, (innerHeight / escala - 1080) / 2) }; }
   function velo() {
-    let v = document.getElementById('velo');
-    if (!v) { v = document.createElement('div'); v.id = 'velo'; v.style.cssText = 'position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;z-index:60;pointer-events:none;'; escenario.appendChild(v); }
-    v.innerHTML = ''; return v;
+    let g = document.getElementById('velo');
+    if (!g) {
+      g = document.createElement('div'); g.id = 'velo'; g.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;overflow:hidden;z-index:60;pointer-events:none;';
+      const s = document.createElement('div'); s.style.cssText = 'position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;'; g.appendChild(s); document.body.appendChild(g);
+    }
+    const s = g.firstChild; s.style.transform = 'scale(' + escala + ') translate(-50%, -50%)'; s.innerHTML = ''; return s;
   }
   const BOTELLA = '<svg class="botella" xmlns="' + NS + '" viewBox="0 0 220 560" width="393" height="1000" style="position:absolute;left:-536px;top:40px;transform:rotate(-90deg);filter:drop-shadow(0 30px 40px rgba(10,40,120,.35))">'
     + '<defs><linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#e7f7ff"/><stop offset=".5" stop-color="#bfe8fb"/><stop offset="1" stop-color="#9fd9f5"/></linearGradient></defs>'
@@ -75,30 +82,30 @@
   function ola(dir, swap, fin, conBotella) {
     const W = 4300;
     const d = 'M120 0 q-90 90 0 180 t0 180 t0 180 t0 180 t0 180 t0 180 H' + (W - 120) + ' q90 -90 0 -180 t0 -180 t0 -180 t0 -180 t0 -180 t0 -180 Z';
-    const v = velo(); const flip = dir < 0 ? -1 : 1;
-    v.innerHTML = '<div style="position:absolute;inset:0;transform:scaleX(' + flip + ')">' + [['#eafaff', 0], ['#62c8f2', 150], ['#1b2a9b', 310]].map(function (p, i) {
-      return '<div class="capa-ola" style="position:absolute;left:0;top:0;width:' + W + 'px;height:1080px;will-change:transform">' + capaSvg(W, 1080, d, p[0]) + (i === 0 && conBotella ? BOTELLA : '') + '</div>';
+    const v = velo(); const flip = dir < 0 ? -1 : 1; const m = margenes();
+    v.innerHTML = '<div style="position:absolute;left:' + (-m.px) + 'px;right:' + (-m.px) + 'px;top:0;bottom:0;transform:scaleX(' + flip + ')">' + [['#eafaff', 0], ['#62c8f2', 150], ['#1b2a9b', 310]].map(function (p, i) {
+      return '<div class="capa-ola" style="position:absolute;left:0;top:' + (-m.py) + 'px;width:' + W + 'px;height:' + (1080 + 2 * m.py) + 'px;will-change:transform">' + capaSvg(W, 1080, d, p[0], 1080 + 2 * m.py) + (i === 0 && conBotella ? BOTELLA.replace('top:40px', 'top:' + (40 + m.py) + 'px') : '') + '</div>';
     }).join('') + '</div>';
     const capas = [...v.querySelectorAll('.capa-ola')]; const dur = conBotella ? 1500 : 1250;
-    capas.forEach((c, i) => c.animate([{ transform: 'translateX(2320px)' }, { transform: 'translateX(' + (-W - 300) + 'px)' }], { duration: dur, delay: i * 80, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' }));
+    capas.forEach((c, i) => c.animate([{ transform: 'translateX(' + (2320 + 2 * m.px) + 'px)' }, { transform: 'translateX(' + (-W - 300 - 2 * m.px) + 'px)' }], { duration: dur, delay: i * 80, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'both' }));
     const b = v.querySelector('.botella'); if (b) b.animate([{ transform: 'rotate(-93deg)' }, { transform: 'rotate(-87deg)' }, { transform: 'rotate(-93deg)' }], { duration: 700, iterations: 3, easing: 'ease-in-out' });
     setTimeout(swap, dur * 0.52 + 160); setTimeout(() => { v.innerHTML = ''; fin(); }, dur + 260);
   }
   function cascada(dir, swap, fin) {
     const H = 2700; let d = 'M0 120'; for (let i = 0; i < 12; i++) d += i ? ' t160 0' : ' q80 -90 160 0'; d += ' V' + (H - 120); for (let i = 0; i < 12; i++) d += i ? ' t-160 0' : ' q-80 90 -160 0'; d += ' Z';
-    const v = velo(); const rayas = Array.from({ length: 26 }, (_, k) => '<rect x="' + (40 + k * 74) + '" y="' + (200 + (k * 137) % 1500) + '" width="5" height="' + (160 + (k * 53) % 260) + '" rx="3" fill="#fff" opacity=".35"/>').join('');
+    const v = velo(); const m = margenes(); const rayas = Array.from({ length: 26 }, (_, k) => '<rect x="' + (40 + k * 74) + '" y="' + (200 + (k * 137) % 1500) + '" width="5" height="' + (160 + (k * 53) % 260) + '" rx="3" fill="#fff" opacity=".35"/>').join('');
     v.innerHTML = [['#eafaff', 0], ['#62c8f2', 120], ['#1b2a9b', 260]].map(function (p, i) {
-      return '<div class="capa-ola" style="position:absolute;left:0;top:0;width:1920px;height:' + H + 'px;will-change:transform"><svg xmlns="' + NS + '" width="1920" height="' + H + '" viewBox="0 0 1920 ' + H + '"><path d="' + d + '" fill="' + p[0] + '"/>' + (i === 2 ? rayas : '') + '</svg></div>';
+      return '<div class="capa-ola" style="position:absolute;left:' + (-m.px) + 'px;top:0;width:' + (1920 + 2 * m.px) + 'px;height:' + H + 'px;will-change:transform"><svg xmlns="' + NS + '" width="' + (1920 + 2 * m.px) + '" height="' + H + '" viewBox="0 0 1920 ' + H + '" preserveAspectRatio="none"><path d="' + d + '" fill="' + p[0] + '"/>' + (i === 2 ? rayas : '') + '</svg></div>';
     }).join('');
-    const dur = 1250; [...v.querySelectorAll('.capa-ola')].forEach((c, i) => c.animate([{ transform: 'translateY(' + (-H - 200) + 'px)' }, { transform: 'translateY(1300px)' }], { duration: dur, delay: i * 90, easing: 'cubic-bezier(.55,0,.45,1)', fill: 'both' }));
+    const dur = 1250; [...v.querySelectorAll('.capa-ola')].forEach((c, i) => c.animate([{ transform: 'translateY(' + (-H - 200 - m.py) + 'px)' }, { transform: 'translateY(' + (1300 + 2 * m.py) + 'px)' }], { duration: dur, delay: i * 90, easing: 'cubic-bezier(.55,0,.45,1)', fill: 'both' }));
     setTimeout(swap, dur * 0.5 + 140); setTimeout(() => { v.innerHTML = ''; fin(); }, dur + 300);
   }
   function ondas(dir, swap, fin) {
-    const v = velo(); const x = 960, y = 1000;
-    v.innerHTML = '<div class="disco" style="position:absolute;inset:0;background:radial-gradient(circle at ' + x + 'px ' + y + 'px,#62c8f2 0%,#1c6ee8 45%,#1b2a9b 100%)"></div>'
+    const v = velo(); const m = margenes(); const x = 960, y = 1000; const gx = x + m.px, gy = y + m.py, R = 2300 + Math.max(m.px, m.py);
+    v.innerHTML = '<div class="disco" style="position:absolute;left:' + (-m.px) + 'px;right:' + (-m.px) + 'px;top:' + (-m.py) + 'px;bottom:' + (-m.py) + 'px;background:radial-gradient(circle at ' + gx + 'px ' + gy + 'px,#62c8f2 0%,#1c6ee8 45%,#1b2a9b 100%)"></div>'
       + [0, 1, 2].map(() => '<i class="anillo" style="position:absolute;left:' + (x - 160) + 'px;top:' + (y - 160) + 'px;width:320px;height:320px;border:6px solid #fff;border-radius:50%;opacity:0"></i>').join('');
     const disco = v.querySelector('.disco');
-    disco.animate([{ clipPath: 'circle(0px at ' + x + 'px ' + y + 'px)' }, { clipPath: 'circle(2300px at ' + x + 'px ' + y + 'px)' }], { duration: 700, easing: 'cubic-bezier(.5,0,.3,1)', fill: 'both' });
+    disco.animate([{ clipPath: 'circle(0px at ' + gx + 'px ' + gy + 'px)' }, { clipPath: 'circle(' + R + 'px at ' + gx + 'px ' + gy + 'px)' }], { duration: 700, easing: 'cubic-bezier(.5,0,.3,1)', fill: 'both' });
     v.querySelectorAll('.anillo').forEach((a, i) => a.animate([{ transform: 'scale(.1)', opacity: .9 }, { transform: 'scale(9)', opacity: 0 }], { duration: 1100, delay: i * 160, easing: 'ease-out', fill: 'both' }));
     setTimeout(swap, 720);
     setTimeout(() => disco.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 650, easing: 'ease-out', fill: 'both' }), 760);
@@ -140,6 +147,7 @@
       vieja.querySelectorAll('video').forEach((v) => v.pause());
     }
     nueva.classList.add('activa');
+    document.body.dataset.clases = [...nueva.classList].filter((c) => !CLASES.includes(c)).join(' ');
     if (vieja && !quieto && !agua) nueva.classList.add(mismoGrupo ? 'mismo-grupo' : direccion < 0 ? 'llega-atras' : 'llega-adelante');
     nueva.querySelectorAll('video').forEach((v) => { v.currentTime = 0; v.play().catch(() => {}); });
     pasos(nueva).forEach((f) => f.classList.toggle('visible', Boolean(todosLosPasos)));
