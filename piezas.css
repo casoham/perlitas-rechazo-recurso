@@ -148,3 +148,29 @@ section.cielo .camino .linea i { background: var(--azul-vivo); }
 #referencias .lista { position: absolute; left: 128px; top: 250px; width: 1664px; columns: 2; column-gap: 72px; }
 #referencias .ref { break-inside: avoid; margin-bottom: 22px; font-size: 24px; line-height: 1.3; font-weight: 500; opacity: 0; animation: emerger 0.7s ease both; animation-delay: calc(var(--k) * 90ms + 700ms); }
 #referencias .ref b { color: var(--azul-vivo); font-weight: 800; margin-right: 10px; }
+
+/* ===== Jarras: prueba de jarras (esquema) ===== */
+#jarras .jarra { position: absolute; top: 0; width: 240px; }
+#jarras .jarra svg { display: block; overflow: visible; }
+#jarras .turbio { opacity: 0.65; animation: aclarar 5s ease-in-out 1.6s both; }
+@keyframes aclarar { to { opacity: var(--t); } }
+#jarras .part { animation: asentar-p 4.4s cubic-bezier(0.4, 0, 0.9, 0.6) both; animation-delay: calc(var(--i) * 250ms + var(--k) * 120ms + 1600ms); }
+@keyframes asentar-p { to { transform: translateY(var(--dy)); opacity: 0; } }
+#jarras .sedimento { transform-box: fill-box; transform-origin: 50% 100%; animation: crecer-s 4.6s ease-out both; animation-delay: calc(var(--i) * 250ms + 2600ms); transform: scaleY(0); }
+@keyframes crecer-s { to { transform: scaleY(1); } }
+#jarras .num-j { margin: 14px auto 0; width: 72px; height: 72px; border-radius: 50% 50% 50% 14%; background: #fff; color: var(--azul-marca); display: grid; place-items: center; font-size: 40px; font-weight: 800; box-shadow: 0 10px 24px rgba(27, 42, 155, 0.18); }
+#jarras .num-j.mejor { animation: marcar 0.7s cubic-bezier(0.2, 1.4, 0.3, 1) both 5.2s; }
+@keyframes marcar { to { background: var(--amarillo); transform: scale(1.18); } }
+
+/* ===== Jarras: prueba de jarras (esquema) ===== */
+#jarras .jarra { position: absolute; top: 0; width: 240px; }
+#jarras .jarra svg { display: block; overflow: visible; }
+#jarras .turbio { opacity: 0.65; animation: aclarar 5s ease-in-out 1.6s both; }
+@keyframes aclarar { to { opacity: var(--t); } }
+#jarras .part { animation: asentar-p 4.4s cubic-bezier(0.4, 0, 0.9, 0.6) both; animation-delay: calc(var(--i) * 250ms + var(--k) * 120ms + 1600ms); }
+@keyframes asentar-p { to { transform: translateY(var(--dy)); opacity: 0; } }
+#jarras .sedimento { transform-box: fill-box; transform-origin: 50% 100%; animation: crecer-s 4.6s ease-out both; animation-delay: calc(var(--i) * 250ms + 2600ms); transform: scaleY(0); }
+@keyframes crecer-s { to { transform: scaleY(1); } }
+#jarras .num-j { margin: 14px auto 0; width: 72px; height: 72px; border-radius: 50% 50% 50% 14%; background: #fff; color: var(--azul-marca); display: grid; place-items: center; font-size: 40px; font-weight: 800; box-shadow: 0 10px 24px rgba(27, 42, 155, 0.18); }
+#jarras .num-j.mejor { animation: marcar 0.7s cubic-bezier(0.2, 1.4, 0.3, 1) both 5.2s; }
+@keyframes marcar { to { background: var(--amarillo); transform: scale(1.18); } }
